@@ -1,250 +1,35 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <!-- Use your stylesheet; adjust the name if needed -->
-    <link rel="stylesheet" href="App.css" />
-    <title>TI Gen AI Website</title>
-    <!-- React and ReactDOM from CDN -->
-    <script src="https://unpkg.com/react@17/umd/react.development.js" crossorigin></script>
-    <script src="https://unpkg.com/react-dom@17/umd/react-dom.development.js" crossorigin></script>
-    <!-- Babel for in-browser JSX transpilation -->
-    <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
-  </head>
-  <body>
-    <!-- Header section styled similar to your sample -->
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="stylesheet.css">
+    <title>Aayush D's Website</title>
+    
+</head>
+
+<body>
+
     <div class="wrapper">
-      <h1>TI Generative AI Tool</h1>
-      <p>Welcome to your personal AI chat assistant.</p>
+        <h1>About Me</h1>
+
+        <p>Hi! My name is Aayush Dwivedi and I am a student at the University of Texas at Austin! </p>
+        <p>I am an ECE major and enjoy all aspects of programming! </p>
     </div>
 
-    <!-- React App will be mounted here -->
-    <div id="root"></div>
-
-    <!-- Footer/Additional Info -->
     <div class="wrapper">
-      <h1>About the Chat App</h1>
-      <p>This application allows you to chat with an AI bot.
-         Please log in or register to begin chatting!</p>
+        <h1>My Hobbies</h1>
+        <p>I really enjoy playing both watching TV and playing video games. In fact, above is an image of one of my favorite games, Elden Ring.</p>
+        <img width="300" src="img/Elden_Ring_Box_art.jpg" alt="Elden Ring Image">
+        <a href="https://en.bandainamcoent.eu/elden-ring/elden-ring">You can buy Elden Ring from here!</a>
     </div>
 
-    <!-- Inline React code (adapted from your original App.js) -->
-    <script type="text/babel">
-      const App = () => {
-        const [user, setUser] = React.useState("");
-        const [password, setPassword] = React.useState("");
-        const [storedUsers, setStoredUsers] = React.useState(
-          JSON.parse(localStorage.getItem("users")) || {}
-        );
-        const [activeChat, setActiveChat] = React.useState(0);
-        const [chats, setChats] = React.useState([]);
-        const [input, setInput] = React.useState("");
-        const [isTyping, setIsTyping] = React.useState(false);
-        const [isAuthenticated, setIsAuthenticated] = React.useState(
-          localStorage.getItem("user") ? true : false
-        );
-        const chatEndRef = React.useRef(null);
-      
-        React.useEffect(() => {
-          if (isAuthenticated) {
-            const currentUser = localStorage.getItem("user");
-            const storedChats = JSON.parse(localStorage.getItem(`chats_${currentUser}`)) || [
-              {
-                id: 0,
-                title: "Chat 1",
-                messages: [{ text: "Hello! How can I help you?", sender: "bot" }],
-              },
-            ];
-            setChats(storedChats);
-          }
-        }, [isAuthenticated]);
-      
-        React.useEffect(() => {
-          if (isAuthenticated) {
-            localStorage.setItem(`chats_${user}`, JSON.stringify(chats));
-          }
-        }, [chats, isAuthenticated, user]);
-      
-        React.useEffect(() => {
-          if (chatEndRef.current) {
-            chatEndRef.current.scrollIntoView({ behavior: "smooth" });
-          }
-        }, [chats]);
-      
-        const handleRegister = () => {
-          if (user && password) {
-            if (!storedUsers[user]) {
-              const updatedUsers = { ...storedUsers, [user]: password };
-              localStorage.setItem("users", JSON.stringify(updatedUsers));
-              setStoredUsers(updatedUsers);
-              localStorage.setItem("user", user);
-              setIsAuthenticated(true);
-            } else {
-              alert("Username already exists!");
-            }
-          }
-        };
-      
-        const handleLogin = () => {
-          if (storedUsers[user] && storedUsers[user] === password) {
-            localStorage.setItem("user", user);
-            setIsAuthenticated(true);
-          } else {
-            alert("Invalid username or password");
-          }
-        };
-      
-        const handleLogout = () => {
-          localStorage.removeItem("user");
-          setUser("");
-          setPassword("");
-          setChats([]);
-          setIsAuthenticated(false);
-        };
-      
-        const createNewChat = () => {
-          const newChatId = chats.length;
-          const newChat = {
-            id: newChatId,
-            title: `Chat ${newChatId + 1}`,
-            messages: [{ text: "Hello! How can I help you?", sender: "bot" }],
-          };
-          setChats([...chats, newChat]);
-          setActiveChat(newChatId);
-        };
-      
-        const sendMessage = async () => {
-          if (!input.trim()) return;
-      
-          // Save the message and clear the input immediately
-          const messageToSend = input;
-          setInput("");
-      
-          // Append the user's message to the chat
-          setChats((prevChats) =>
-            prevChats.map((chat) =>
-              chat.id === activeChat
-                ? {
-                    ...chat,
-                    messages: [...chat.messages, { text: messageToSend, sender: "user" }],
-                  }
-                : chat
-            )
-          );
-      
-          setIsTyping(true);
-      
-          try {
-            // Send a POST request to the Flask backend (/query endpoint)
-            const response = await fetch("http://localhost:5000/query", {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({ question: messageToSend }),
-            });
-            const data = await response.json();
-      
-            // Append the bot's response to the chat
-            setChats((prevChats) =>
-              prevChats.map((chat) =>
-                chat.id === activeChat
-                  ? {
-                      ...chat,
-                      messages: [
-                        ...chat.messages,
-                        { text: data.response, sender: "bot" },
-                      ],
-                    }
-                  : chat
-              )
-            );
-          } catch (error) {
-            console.error("Error querying model:", error);
-          }
-      
-          setIsTyping(false);
-        };
-      
-        const handleKeyPress = (e) => {
-          if (e.key === "Enter" && !e.shiftKey) {
-            e.preventDefault();
-            sendMessage();
-          }
-        };
-      
-        if (!isAuthenticated) {
-          return (
-            <div className="login-container" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100vh' }}>
-              <h2 style={{ fontSize: '32px', textAlign: 'center' }}>TI Generative AI Tool</h2>
-              <div>
-                <input
-                  type="text"
-                  placeholder="Username"
-                  value={user}
-                  onChange={(e) => setUser(e.target.value)}
-                />
-                <input
-                  type="password"
-                  placeholder="Password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                />
-                <button onClick={handleLogin}>Login</button>
-                <button onClick={handleRegister}>Register</button>
-              </div>
-            </div>
-          );
-        }
-      
-        const currentChat = chats.find((chat) => chat.id === activeChat);
-      
-        return (
-          <div className="chat-container">
-            <div className="sidebar">
-              <h2>Chats</h2>
-              <button onClick={createNewChat} className="new-chat-btn">New Chat</button>
-              <div className="chat-list">
-                {chats.map((chat) => (
-                  <button
-                    key={chat.id}
-                    onClick={() => setActiveChat(chat.id)}
-                    className={`chat-item ${activeChat === chat.id ? "active" : ""}`}
-                  >
-                    {chat.title}
-                  </button>
-                ))}
-              </div>
-              <button onClick={handleLogout} className="logout-btn" style={{ marginTop: "auto" }}>Logout</button>
-            </div>
-            <div className="chat-main">
-              <div className="messages">
-                {currentChat?.messages.map((msg, index) => (
-                  <div key={index} className={`message ${msg.sender}`}>
-                    <div className="bubble">{msg.text}</div>
-                  </div>
-                ))}
-                <div ref={chatEndRef} />
-              </div>
-              <div className="input-container">
-                <input
-                  type="text"
-                  value={input}
-                  onChange={(e) => setInput(e.target.value)}
-                  onKeyPress={handleKeyPress}
-                  placeholder="Type a message..."
-                  className="chat-input"
-                />
-                <button onClick={sendMessage} className="send-btn">Send</button>
-              </div>
-            </div>
-          </div>
-        );
-      };
-      
-      ReactDOM.render(<App />, document.getElementById("root"));
-    </script>
-  </body>
+    <div class="box">
+        <p id="special">I also enjoy reading books, like Dune.</p>
+    </div>
+
+
+</body>
+
 </html>
