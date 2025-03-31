@@ -154,19 +154,19 @@ button:hover {
   border-top: 1px solid #ccc;
 }
 
-/* Make sure typed text is black */
+/* Ensure typed text is visible */
 .chat-input {
   flex: 1;
   font-size: 16px;
   padding: 10px;
   border: 1px solid #ccc;
   border-radius: 5px;
-  color: #000 !important;       /* Ensure text is black */
+  color: #000 !important;
   background-color: #fff !important;
 }
 
 .chat-input::placeholder {
-  color: #999; /* Placeholder color */
+  color: #999;
 }
 
 .chat-input:focus {
@@ -179,13 +179,13 @@ button:hover {
   background-color: #007bff;
   color: white;
   border: none;
-  padding: 6px 12px;      /* Reduced padding */
+  padding: 6px 12px;
   border-radius: 5px;
   cursor: pointer;
-  font-size: 14px;        /* Slightly smaller font */
-  width: auto;            /* Don't stretch the button */
-  min-width: 60px;        /* Reasonable minimum width */
-  min-height: 40px;       /* Reasonable minimum height */
+  font-size: 14px;
+  width: auto;
+  min-width: 60px;
+  min-height: 40px;
 }
 
 .send-btn:hover {
